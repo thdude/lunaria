@@ -1,12 +1,12 @@
 #include <iostream>
+#include "engine.h"
+
 using namespace std;
 
-// main() is where program execution begins.
 int main() {
-    cout << "Hello World"; // prints Hello World
-    while(true)
-    {
-        cout << "Hello World";
-    }
-    //return 0;
+
+    lunaria::Engine engine{};
+    engine.run();
+
+    return 0;
 }
