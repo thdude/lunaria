@@ -3,4 +3,4 @@
 	url = https://github.com/charles-lunarg/vk-bootstrap
 [submodule "libs/glfw"]
 	path = libs/glfw
-	url = https://github.com/glfw/glfw.git
+	url = https://github.com/glfw/glfw
