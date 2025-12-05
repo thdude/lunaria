@@ -34,9 +34,10 @@ namespace lunaria
 
         window = glfwCreateWindow(800, 600, Engine::gameName, nullptr, nullptr);
 
-        loop();
+        //lunaria::Renderer renderer{};
+        renderer = new Renderer();
 
-        lunaria::Renderer renderer{};
+        loop();
     }
 
     void Window::loop()

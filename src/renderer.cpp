@@ -1,5 +1,6 @@
 #include "renderer.h"
 #include "engine.h"
+#include "VkBootstrap.h"
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -17,87 +18,30 @@ namespace lunaria
 
     void Renderer::InitRenderer()
     {
-        createInstance();
-    }
+        vkb::InstanceBuilder builder;
+        auto inst_ret = builder.set_app_name (Engine::gameName)
+                            .set_engine_name("lunaria")
+                            .request_validation_layers ()
+                            .use_default_debug_messenger ()
+                            .build ();
+        if (!inst_ret) { /* report */ }
+        vkb::Instance vkb_inst = inst_ret.value ();
 
-    //TODO: make this update with more stuff when i add that
-    void Renderer::createInstance()
-    {
-        VkApplicationInfo appInfo{};
-        appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = Engine::gameName;
-        appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.pEngineName = "lunaria";
-        appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.apiVersion = VK_API_VERSION_1_0;
+        vkb::PhysicalDeviceSelector selector{ vkb_inst };
+        auto phys_ret = selector.set_surface (surface)
+                            .set_minimum_version (1, 1)
+                            .require_dedicated_transfer_queue ()
+                            .select ();
+        if (!phys_ret) { /* report */ }
 
-        VkInstanceCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-        createInfo.pApplicationInfo = &appInfo;
+        vkb::DeviceBuilder device_builder{ phys_ret.value () };
+        auto dev_ret = device_builder.build ();
+        if (!dev_ret) { /* report */ }
+        vkb::Device vkb_device = dev_ret.value ();
 
-        uint32_t glfwExtensionCount = 0;
-        const char** glfwExtensions;
-
-        glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);;
-
-        createInfo.enabledExtensionCount = glfwExtensionCount;
-        createInfo.ppEnabledExtensionNames = glfwExtensions;
-
-        createInfo.enabledLayerCount = 0;
-
-        VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
-
-        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create instance!");
-        }
-    }
-
-    void Renderer::findDevice();
-    {
-        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-        uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
-
-        if(deviceCount == 0)
-        {
-            throw stc::runtime_error("No device with vulkan support!!");
-        }
-
-        std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
-
-        std::multimap<int, VkPhysicalDevice> candidates;
-
-        for(const auto& device : devices)
-        {
-            int score = rateDevice(device);
-            candidates.insert(std::make_pair(score, device));
-        }
-
-        if (candidates.rbegin()->first > 0) {
-            physicalDevice = candidates.rbegin()->second;
-        } else {
-            throw std::runtime_error("failed to find a suitable GPU!");
-        }
-    }
-
-    //TODO: put more requirements as needed
-    int Renderer::WrateDevice(VkPhysicalDevice device)
-    {
-        int score = 0;
-
-        VkPhysicalDeviceProperties deviceProperties;
-        vkGetPhysicalDeviceProperties(device, &deviceProperties);
-        VkPhysicalDeviceFeatures deviceFeatures;
-        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-
-        if(deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) 
-        {
-            score += 1000;
-        }
-        score += deviceProperties.limits.maxImageDimension2D;
-
-        return score;
+        auto graphics_queue_ret = vkb_device.get_queue (vkb::QueueType::graphics);
+        if (!graphics_queue_ret)  { /* report */ }
+        VkQueue graphics_queue = graphics_queue_ret.value ();
     }
 
     void Renderer::Render()

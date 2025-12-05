@@ -1,3 +1,4 @@
+#pragma once
 #include <vulkan/vulkan.h>
 
 namespace lunaria
@@ -8,13 +9,10 @@ namespace lunaria
             Renderer();
             ~Renderer();
 
-        private:
-            VkInstance instance;
+            VkSurfaceKHR surface;
 
+        private:
             void InitRenderer();
             void Render();
-            void createInstance();
-            void findDevice();
-            int rateDevice(VkPhysicalDevice device);
     };
 }

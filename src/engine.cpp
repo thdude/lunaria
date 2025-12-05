@@ -16,5 +16,10 @@ namespace lunaria
     void Engine::run()
     {
         lunaria::Window window{};
+
+        while(true)
+        {
+            continue;
+        }
     }
 }
