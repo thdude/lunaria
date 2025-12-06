@@ -12,20 +12,18 @@ add_executable(lunaria ${all_SRCS})
 find_package(Vulkan REQUIRED)
 message(STATUS "Found Vulkan: $ENV{VULKAN_SDK}")
 
-add_subdirectory(libs/vk-bootstrap)
-target_link_libraries(lunaria vk-bootstrap::vk-bootstrap)
+include(CPM.cmake)
 
-if(WIN32)
-    add_subdirectory(libs/glfw)
-    target_link_libraries(lunaria glfw)
-elseif(UNIX)
-    find_package(glfw3 3.4 REQUIRED)
-    set(GLFW_LIB glfw)
-    message(STATUS "Found GLFW")
-endif()
+# CPMAddPackage("gh:charles-lunarg/vk-bootstrap@latest")
+# CPMAddPackage("gh:/glfw/glfw@latest")
+CPMAddPackage(https://github.com/charles-lunarg/vk-bootstrap)
+CPMAddPackage(https://github.com/glfw/glfw)
+
+
+target_link_libraries("glfw::glfw charles-lunarg::vk-bootstrap")
 
 if(WIN32)
     
 elseif (UNIX)
-    target_link_libraries(lunaria glfw ${Vulkan_LIBRARIES})
+    target_link_libraries(lunaria ${Vulkan_LIBRARIES})
 endif()
