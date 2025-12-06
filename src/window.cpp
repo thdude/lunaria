@@ -29,21 +29,22 @@ namespace lunaria
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-        glfwSetWindowUserPointer(window, this);
-        glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 
         window = glfwCreateWindow(800, 600, Engine::gameName, nullptr, nullptr);
 
-        //lunaria::Renderer renderer{};
-        renderer = new Renderer();
+        glfwSetWindowUserPointer(window, this);
+        glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+
+        
+
+        renderer = new Renderer([=](VkInstance instance, VkSurfaceKHR *surface) -> void { glfwCreateWindowSurface(instance, window, nullptr, surface); });
 
         loop();
     }
 
     void Window::loop()
     {
-        //while(!glfwWindowShouldClose(window))
-        while(true)
+        while(!glfwWindowShouldClose(window))
         {
             glfwPollEvents();
         }

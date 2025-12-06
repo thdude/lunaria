@@ -7,16 +7,16 @@
 
 namespace lunaria
 {
-    Renderer::Renderer()
+    Renderer::Renderer(std::function<void(VkInstance,VkSurfaceKHR*)> bruh)
     {
-        InitRenderer();
+        InitRenderer(bruh);
     }
     Renderer::~Renderer()
     {
         //buh
     }
 
-    void Renderer::InitRenderer()
+    void Renderer::InitRenderer(std::function<void(VkInstance,VkSurfaceKHR*)> bruh)
     {
         vkb::InstanceBuilder builder;
         auto inst_ret = builder.set_app_name (Engine::gameName)
@@ -26,6 +26,8 @@ namespace lunaria
                             .build ();
         if (!inst_ret) { /* report */ }
         vkb::Instance vkb_inst = inst_ret.value ();
+
+        bruh(vkb_inst, &surface);
 
         vkb::PhysicalDeviceSelector selector{ vkb_inst };
         auto phys_ret = selector.set_surface (surface)
