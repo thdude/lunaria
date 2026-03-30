@@ -1,3 +1,5 @@
+#pragma once
+#include <iostream>
 #include <string>
 
 namespace lunaria
@@ -11,6 +13,7 @@ namespace lunaria
 
             bool isClient = true;
 
+            //static std::string gameName;
             static inline const char gameName[] = "lunaria test game";
     };
 }

@@ -1,6 +1,7 @@
 #include "window.h"
 #include "engine.h"
-#include "renderer.h"
+#include "utils/math.h"
+#include "rendering/renderer.h"
 #include <iostream>
 #include <GLFW/glfw3.h>
 
@@ -44,9 +45,14 @@ namespace lunaria
 
     void Window::loop()
     {
+        math::Transform3D camera;
+        camera.position = {-8, -1, 1};
         while(!glfwWindowShouldClose(window))
         {
             glfwPollEvents();
+            renderer->Render(camera, 80);
+
+            camera.position.x += 0.0001;
         }
     }
 
