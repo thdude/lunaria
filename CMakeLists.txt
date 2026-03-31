@@ -20,8 +20,10 @@ CPMAddPackage("gh:g-truc/glm#1.0.1")
 CPMAddPackage("gh:GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator#v3.3.0")
 CPMAddPackage("gh:zeux/volk#1.4.304")
 
+CPMAddPackage("gh:spnda/fastgltf#v0.9.0")
+
 target_compile_definitions(lunaria PRIVATE VK_NO_PROTOTYPES GLM_FORCE_DEPTH_ZERO_TO_ONE GLM_FORCE_LEFT_HANDED)
-target_link_libraries(lunaria glfw vk-bootstrap::vk-bootstrap glm::glm volk::volk GPUOpen::VulkanMemoryAllocator)
+target_link_libraries(lunaria glfw vk-bootstrap::vk-bootstrap glm::glm volk::volk GPUOpen::VulkanMemoryAllocator fastgltf::fastgltf)
 target_include_directories(lunaria PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 #compile shaders

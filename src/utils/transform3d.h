@@ -11,8 +11,8 @@ namespace lunaria::math
             glm::vec3 GetRightVector();
             glm::vec3 GetUpVector();
             glm::mat4 GetViewMatrix();
-            glm::vec3 position;
-            glm::vec3 rotation;
+            glm::vec3 position = glm::vec3(0);
+            glm::vec3 rotation = glm::vec3(0);
             glm::vec3 scale = glm::vec3(1);
     };    
 }

@@ -6,10 +6,10 @@
 
 namespace lunaria
 {
+    std::string Engine::gameName = "lunaria test game";
+
     Engine::Engine()
     {
-        //gameName = "lunaria test game";
-
         std::cout << "Launching game" << std::endl;
     }
 

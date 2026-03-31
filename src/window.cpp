@@ -4,6 +4,7 @@
 #include "rendering/renderer.h"
 #include <iostream>
 #include <GLFW/glfw3.h>
+#include <string>
 
 namespace lunaria
 {
@@ -31,7 +32,7 @@ namespace lunaria
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-        window = glfwCreateWindow(800, 600, Engine::gameName, nullptr, nullptr);
+        window = glfwCreateWindow(800, 600, Engine::gameName.data(), nullptr, nullptr);
 
         glfwSetWindowUserPointer(window, this);
         glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
@@ -46,13 +47,13 @@ namespace lunaria
     void Window::loop()
     {
         math::Transform3D camera;
-        camera.position = {-8, -1, 1};
+        camera.position = {-8, 0, 1};
         while(!glfwWindowShouldClose(window))
         {
             glfwPollEvents();
             renderer->Render(camera, 80);
 
-            camera.position.x += 0.0001;
+            camera.position.x += 0.0001f;
         }
     }
 

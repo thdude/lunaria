@@ -36,7 +36,7 @@ namespace lunaria
         volkInitialize();
 
         vkb::InstanceBuilder builder;
-        auto inst_ret = builder.set_app_name (Engine::gameName)
+        auto inst_ret = builder.set_app_name (Engine::gameName.data())
                             .set_engine_name("lunaria")
                             .request_validation_layers ()
                             .use_default_debug_messenger ()
@@ -219,7 +219,7 @@ namespace lunaria
 
         VkPushConstantRange pushConstantRange{
             .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
-            .size = sizeof(VkDeviceAddress)
+            .size = sizeof(PushConstants)
         };
         VkPipelineLayoutCreateInfo pipelineLayoutCI{
             .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
@@ -322,13 +322,59 @@ namespace lunaria
         return shaderModule;
     }
 
+    uint32_t Renderer::UploadMesh(Vertex* verts, uint32_t vertCount, uint32_t* indices, uint32_t indexCount)
+    {
+        Mesh mesh;
+
+        VkBufferCreateInfo uBufferVertexCI{
+            .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+            .size = sizeof(Vertex) * vertCount,
+            .usage = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT
+        };
+        VmaAllocationCreateInfo uBufferAllocVertexCI{
+            .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT,
+            .usage = VMA_MEMORY_USAGE_AUTO
+        };
+        chk(vmaCreateBuffer(allocator, &uBufferVertexCI, &uBufferAllocVertexCI, &mesh.vertexBuffer, &mesh.vertexAllocation, nullptr));
+
+            VkBufferDeviceAddressInfo uBufferBdaInfo{
+            .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
+            .buffer = mesh.vertexBuffer
+        };
+        mesh.address = vkGetBufferDeviceAddress(device, &uBufferBdaInfo);
+        VkBufferCreateInfo uBufferIndexCI{
+            .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+            .size = sizeof(uint32_t) * indexCount,
+            .usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT
+        };
+        VmaAllocationCreateInfo uBufferAllocIndexCI{
+            .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT,
+            .usage = VMA_MEMORY_USAGE_AUTO
+        };
+        chk(vmaCreateBuffer(allocator, &uBufferIndexCI, &uBufferAllocIndexCI, &mesh.indexBuffer, &mesh.indexAllocation, nullptr));
+
+        mesh.vertCount = vertCount;
+        mesh.indexCount = indexCount;
+
+        void* mappedData = mesh.vertexAllocation->GetMappedData();
+        memcpy(mappedData, verts, sizeof(Vertex) * vertCount);
+        mappedData = mesh.indexAllocation->GetMappedData();
+        memcpy(mappedData, indices, sizeof(uint32_t) * indexCount);
+
+        meshes.push_back(mesh);
+        return meshes.size() - 1;
+    }
+
     void Renderer::Render(math::Transform3D& camerapos, float camerafov)
     {
         framedata& frame = frames[currentFrame];
         uint32_t imageIndex;
 
+        
+
         ShaderData shaderdata;
         shaderdata.projection = glm::perspective(glm::radians(camerafov), (float)window.width / window.height, 0.1f, 1000.0f);
+        shaderdata.projection[1][1] *= -1;
         shaderdata.view = camerapos.GetViewMatrix();
         shaderdata.model = {1};
 
@@ -353,8 +399,6 @@ namespace lunaria
         ////////////////////////////////
 
         chk(vkBeginCommandBuffer(cb, &cbBI));
-
-        vkCmdPushConstants(cb, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VkDeviceAddress), &frame.shaderDataAddress);
 
         std::array<VkImageMemoryBarrier2, 2> outputBarriers{
             VkImageMemoryBarrier2{
@@ -424,7 +468,13 @@ namespace lunaria
 
         vkCmdBindPipeline(cb, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
-        vkCmdDraw(cb, 3, 1, 0, 0);
+        //make loop
+        vkCmdBindIndexBuffer(cb, meshes[0].indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+        PushConstants pushConstants {frame.shaderDataAddress, meshes[0].address};
+        vkCmdPushConstants(cb, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstants), &pushConstants);
+        vkCmdDrawIndexed(cb, meshes[0].indexCount, 1, 0, 0, 0);
+
+        
         vkCmdEndRendering(cb);
         VkImageMemoryBarrier2 barrierPresent{
             .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,

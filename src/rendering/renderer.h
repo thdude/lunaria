@@ -23,6 +23,29 @@ namespace lunaria
         uint32_t width;
         uint32_t height;
     };
+    struct Vertex
+    {
+        glm::vec3 position;
+        float u;
+        glm::vec3 normal;
+        float v;
+        glm::vec4 color;
+    };
+    struct Mesh
+    {
+        VkDeviceAddress address;
+        VkBuffer vertexBuffer;
+        VkBuffer indexBuffer;
+        VmaAllocation vertexAllocation;
+        VmaAllocation indexAllocation;
+        uint32_t vertCount;
+        uint32_t indexCount;
+    };
+    struct PushConstants
+    {
+        VkDeviceAddress shaderData;
+        VkDeviceAddress vertices;
+    };
     class Renderer
     {
         public:
@@ -36,6 +59,8 @@ namespace lunaria
             void CreateSwapchain();
             void CreatePipeline();
             VkShaderModule LoadShader(std::string name);
+
+            uint32_t UploadMesh(Vertex *verts, uint32_t vertCount, uint32_t *indices, uint32_t indexCount);
 
             VkDevice device;
             VkPhysicalDevice physicalDevice;
@@ -61,10 +86,10 @@ namespace lunaria
             VkPipelineLayout pipelineLayout;
             VkPipeline pipeline;
 
-
-
             framedata frames[2];
             uint8_t currentFrame = 0;
+
+            std::vector<Mesh> meshes;
 
             static inline void chk(VkResult result) {
                 if (result != VK_SUCCESS) {

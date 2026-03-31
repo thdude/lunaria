@@ -13,7 +13,7 @@ namespace lunaria
 
             bool isClient = true;
 
-            //static std::string gameName;
-            static inline const char gameName[] = "lunaria test game";
+            static std::string gameName;
+            //static inline const char gameName[] = "lunaria test game";
     };
 }
