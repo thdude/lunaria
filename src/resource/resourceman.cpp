@@ -1,6 +1,7 @@
 #include "resource/resourceman.h"
 #include "resource/modelasset.h"
 #include <memory>
+#include <filesystem>
 
 namespace lunaria
 {
@@ -8,15 +9,6 @@ namespace lunaria
     {
         
     }
-    // ModelAsset* ResourceMan::GetModel(std::string path)
-    // {
-    //     ModelAsset* model = &models[path];
-    //     if(model == nullptr)
-    //     {
-    //         model = new ModelAsset;
-    //         model->LoadFromFile(path);
-    //     }
-    // }
 
     template <IsDerivedFromBase T>
     T* ResourceMan::GetAsset(std::string path)
@@ -26,6 +18,7 @@ namespace lunaria
         {
             assets[path] = std::make_unique<T>();
             T* asset = &assets[path]; //bruh
+            asset.LoadFromFile(std::filesystem::path(path));
         }
         return asset;
     }

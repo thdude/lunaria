@@ -6,8 +6,9 @@ namespace lunaria
     class Asset
     {
         public:
-            std::string path;
+            std::string name;
+            uint32_t references;
 
-            virtual void LoadFromFile();
+            void LoadFromFile();
     };
 };
