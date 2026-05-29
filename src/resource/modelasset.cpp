@@ -1,4 +1,6 @@
 #include "modelasset.h"
+#include "engine.h"
+#include "rendering/renderer.h"
 #include "fastgltf/core.hpp"
 #include <string>
 #include <filesystem>
@@ -35,7 +37,9 @@ namespace lunaria
                 return false;
             }
 
-            viewer->asset = std::move(asset.get());
+            fastgltf::Asset modell = std::move(asset.get());
+
+            Engine::renderer
         }
     }
 }

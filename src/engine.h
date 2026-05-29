@@ -1,6 +1,9 @@
 #pragma once
+#include "window.h"
+#include "rendering/renderer.h"
 #include <iostream>
 #include <string>
+
 
 namespace lunaria
 {
@@ -12,6 +15,10 @@ namespace lunaria
             void run();
 
             bool isClient = true;
+
+            Window window;
+
+            static Renderer* renderer;
 
             static std::string gameName;
             //static inline const char gameName[] = "lunaria test game";
