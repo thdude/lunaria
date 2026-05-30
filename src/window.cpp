@@ -65,4 +65,9 @@ namespace lunaria
         w->height = height;
     }
 
+    Renderer* Window::GetRenderer()
+    {
+        return renderer;
+    }
+
 }

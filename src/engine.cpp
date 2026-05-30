@@ -16,6 +16,7 @@ namespace lunaria
 
     void Engine::run()
     {
-        gameWindow = {};
+        window = {};
+        Engine::renderer = window.GetRenderer();
     }
 }
