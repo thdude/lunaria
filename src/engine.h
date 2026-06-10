@@ -4,6 +4,7 @@
 #include "resource/resourceman.h"
 #include <iostream>
 #include <string>
+#include "window.h"
 
 
 namespace lunaria
