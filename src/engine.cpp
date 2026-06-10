@@ -2,6 +2,10 @@
 #include <string>
 #include "engine.h"
 
+#include "resource/asset.h"
+#include "resource/modelasset.h"
+#include "resource/resourceman.h"
+
 #include "window.h"
 
 namespace lunaria
@@ -18,5 +22,8 @@ namespace lunaria
     {
         window = {};
         Engine::renderer = window.GetRenderer();
+
+        resourceman = {};
+        resourceman.GetAsset<ModelAsset>("monkey.glb");
     }
 }

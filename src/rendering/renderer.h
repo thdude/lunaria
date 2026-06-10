@@ -53,14 +53,15 @@ namespace lunaria
             ~Renderer();
             void Render(math::Transform3D& camerapos, float camerafov);
             VkSurfaceKHR surface;
-
+            uint32_t UploadMesh(Vertex *verts, uint32_t vertCount, uint32_t *indices, uint32_t indexCount);
+            
         private:
             void InitRenderer(std::function<void(VkInstance,VkSurfaceKHR*)> bruh);
             void CreateSwapchain();
             void CreatePipeline();
             VkShaderModule LoadShader(std::string name);
 
-            uint32_t UploadMesh(Vertex *verts, uint32_t vertCount, uint32_t *indices, uint32_t indexCount);
+            
 
             VkDevice device;
             VkPhysicalDevice physicalDevice;
