@@ -2,7 +2,6 @@
 #include <string>
 #include "engine.h"
 
-#include "resource/asset.h"
 #include "resource/modelasset.h"
 #include "resource/resourceman.h"
 
@@ -16,6 +15,8 @@ namespace lunaria
     {
         std::cout << "Launching game" << std::endl;
     }
+
+    Renderer* Engine::renderer;
 
 
     void Engine::run()

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.5.0)
 project(lunaria VERSION 0.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 
+add_definitions(-w) #disable annoying warnings
+
 include_directories(${PROJECT_SOURCE_DIR}/src)
 file(GLOB_RECURSE all_SRCS 
     "${PROJECT_SOURCE_DIR}/src/*.cpp"

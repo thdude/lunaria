@@ -8,6 +8,7 @@ namespace lunaria
 {
     class ModelAsset : Asset
     {
-        bool LoadFromFile(std::filesystem::path path);
+        public:
+            bool LoadFromFile(std::filesystem::path path);
     };
 }

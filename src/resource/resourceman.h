@@ -22,10 +22,20 @@ namespace lunaria
             void GetTexture();
 
             //test
-            std::unordered_map<std::string, std::unique_ptr<Asset>> assets;
+            std::unordered_map<std::string, Asset*> assets;
 
             template <IsDerivedFromBase T>
-            T* GetAsset(std::string path);
+            T* GetAsset(std::string path)
+            {
+                T* asset = (T*)assets[path];
+                if(asset == nullptr)
+                {
+                    assets[path] = new T();
+                    T* asset = (T*)assets[path]; //bruh
+                    asset->LoadFromFile(std::filesystem::path(path));
+                }
+                return asset;
+            }
         private:
             int butt;
     };
