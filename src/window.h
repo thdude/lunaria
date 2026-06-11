@@ -16,7 +16,8 @@ namespace lunaria
             GLFWwindow *window;
 
             Renderer* GetRenderer();
-
+            void loop();
+            
         private:
             static void framebufferResizeCallback(GLFWwindow *window, int width, int height);
             int width;
@@ -25,6 +26,6 @@ namespace lunaria
 
             Renderer *renderer;
 
-            void loop();
+            
     };
 }

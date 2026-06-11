@@ -20,37 +20,35 @@ namespace lunaria
 {
     bool ModelAsset::LoadFromFile(std::filesystem::path path)
     {
-        static constexpr auto supportedExtensions =
-            fastgltf::Extensions::KHR_mesh_quantization |
-            fastgltf::Extensions::KHR_texture_transform |
-            fastgltf::Extensions::KHR_materials_variants;
-
-        fastgltf::Parser parser(supportedExtensions);
-
-        constexpr auto gltfOptions =
-            fastgltf::Options::DontRequireValidAssetMember |
-            fastgltf::Options::AllowDouble |
-            fastgltf::Options::LoadExternalBuffers |
-            fastgltf::Options::LoadExternalImages |
-            fastgltf::Options::GenerateMeshIndices;
-
-        auto gltfFile = fastgltf::MappedGltfFile::FromPath(path);
-        if (!bool(gltfFile)) {
-            std::cerr << "Failed to open glTF file: " << fastgltf::getErrorMessage(gltfFile.error()) << '\n';
+        fastgltf::Expected<fastgltf::GltfDataBuffer> dataFile = fastgltf::GltfDataBuffer::FromPath(path);
+        fastgltf::GltfDataBuffer data;
+        if (dataFile)
+        {
+            data = std::move(dataFile.get());
+        }
+        else
+        {
             return false;
         }
 
-        auto asset = parser.loadGltf(gltfFile.get(), path.parent_path(), gltfOptions);
+        constexpr auto gltfOptions = fastgltf::Options::LoadExternalBuffers;
+
+        fastgltf::Parser parser{};
+
+        std::cout << path.relative_path() << std::endl;
+
+        auto asset = parser.loadGltfBinary(dataFile.get(), std::filesystem::current_path(), gltfOptions);
         if (asset.error() != fastgltf::Error::None) {
             std::cerr << "Failed to load glTF: " << fastgltf::getErrorMessage(asset.error()) << '\n';
             return false;
         }
 
+        std::cout << "loading model...." << std::endl;
+
         fastgltf::Asset gltf = std::move(asset.get());
 
         fastgltf::Mesh& mesh = gltf.meshes[0];
 
-        //copied from enator
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
 
@@ -65,12 +63,12 @@ namespace lunaria
 
             fastgltf::Accessor& posAccessor = gltf.accessors[p.findAttribute("POSITION")->accessorIndex];
             fastgltf::Accessor& normAccessor = gltf.accessors[p.findAttribute("NORMAL")->accessorIndex];
-            fastgltf::Accessor& uvAccessor = gltf.accessors[p.findAttribute("TEXCOORD_0")->accessorIndex];
+            //fastgltf::Accessor& uvAccessor = gltf.accessors[p.findAttribute("TEXCOORD_0")->accessorIndex];
             vertices.reserve(vertices.size() + posAccessor.count);
             fastgltf::iterateAccessorWithIndex<glm::vec3>(gltf, posAccessor, [&](glm::vec3 pos, uint32_t index)
             {
                 glm::vec3 norm = fastgltf::getAccessorElement<glm::vec3>(gltf, normAccessor, index);
-                glm::vec2 uv = fastgltf::getAccessorElement<glm::vec2>(gltf, uvAccessor, index);
+                //glm::vec2 uv = fastgltf::getAccessorElement<glm::vec2>(gltf, uvAccessor, index);
 
                 Vertex vert;
                 vert.position = {-pos.z, pos.x, pos.y};
@@ -82,6 +80,7 @@ namespace lunaria
             });
         }
 
+        std::cout << "hello" << std::endl;
         Engine::renderer->UploadMesh(vertices.data(), vertices.size(), indices.data(), indices.size());
 
         return true;

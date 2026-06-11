@@ -38,10 +38,9 @@ namespace lunaria
         glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 
         
-
+        
         renderer = new Renderer([=](VkInstance instance, VkSurfaceKHR *surface) -> void { glfwCreateWindowSurface(instance, window, nullptr, surface); });
-
-        loop();
+        
     }
 
     void Window::loop()
@@ -51,8 +50,9 @@ namespace lunaria
         while(!glfwWindowShouldClose(window))
         {
             glfwPollEvents();
+            
             renderer->Render(camera, 80);
-
+            
             camera.position.x += 0.0001f;
         }
     }

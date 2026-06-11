@@ -2,6 +2,7 @@
 #include <string>
 #include "engine.h"
 
+
 #include "resource/modelasset.h"
 #include "resource/resourceman.h"
 
@@ -21,10 +22,12 @@ namespace lunaria
 
     void Engine::run()
     {
-        window = {};
+        //window = {};
         Engine::renderer = window.GetRenderer();
 
-        resourceman = {};
+        std::cout << "hi" << std::endl;
         resourceman.GetAsset<ModelAsset>("monkey.glb");
+
+        window.loop();
     }
 }

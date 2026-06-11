@@ -326,6 +326,8 @@ namespace lunaria
     {
         Mesh mesh;
 
+        std::cout << "ddsdsd2" << std::endl;
+
         VkBufferCreateInfo uBufferVertexCI{
             .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
             .size = sizeof(Vertex) * vertCount,
@@ -467,12 +469,20 @@ namespace lunaria
         vkCmdSetScissor(cb, 0, 1, &scissor);
 
         vkCmdBindPipeline(cb, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-
+        
         //make loop
-        vkCmdBindIndexBuffer(cb, meshes[0].indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-        PushConstants pushConstants {frame.shaderDataAddress, meshes[0].address};
-        vkCmdPushConstants(cb, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstants), &pushConstants);
-        vkCmdDrawIndexed(cb, meshes[0].indexCount, 1, 0, 0, 0);
+        if(meshes.size() < 1)
+        {
+            //std::cout << "no meshes" << std::endl;
+        }
+        else
+        {
+            vkCmdBindIndexBuffer(cb, meshes[0].indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+            PushConstants pushConstants {frame.shaderDataAddress, meshes[0].address};
+            vkCmdPushConstants(cb, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstants), &pushConstants);
+            vkCmdDrawIndexed(cb, meshes[0].indexCount, 1, 0, 0, 0);
+            std::cout << "ddsdsd" << std::endl;            
+        }
 
         
         vkCmdEndRendering(cb);
