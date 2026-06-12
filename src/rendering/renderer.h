@@ -14,6 +14,9 @@ namespace lunaria
         VkBuffer shaderData;
         VmaAllocation shaderDataAllocation;
         VkDeviceAddress shaderDataAddress;
+        VkBuffer ObjectData;
+        VmaAllocation ObjectDataAllocation;
+        VkDeviceAddress ObjectDataAddress;
         VkFence fence;
         VkSemaphore presentSemaphore;
         VkCommandBuffer commandBuffer;
@@ -45,13 +48,19 @@ namespace lunaria
     {
         VkDeviceAddress shaderData;
         VkDeviceAddress vertices;
+        VkDeviceAddress objectData;
+    };
+    struct DrawObject
+    {
+        math::Transform3D transform;
+        uint32_t meshID;
     };
     class Renderer
     {
         public:
             Renderer(std::function<void(VkInstance,VkSurfaceKHR*)> bruh);
             ~Renderer();
-            void Render(math::Transform3D& camerapos, float camerafov);
+            void Render(math::Transform3D& camerapos, float camerafov, std::vector<DrawObject> drawObjects);
             VkSurfaceKHR surface;
             uint32_t UploadMesh(Vertex *verts, uint32_t vertCount, uint32_t *indices, uint32_t indexCount);
             

@@ -37,7 +37,7 @@ namespace lunaria
 
         std::cout << path.relative_path() << std::endl;
 
-        auto asset = parser.loadGltfBinary(dataFile.get(), std::filesystem::current_path(), gltfOptions);
+        auto asset = parser.loadGltfBinary(data, std::filesystem::current_path(), gltfOptions);
         if (asset.error() != fastgltf::Error::None) {
             std::cerr << "Failed to load glTF: " << fastgltf::getErrorMessage(asset.error()) << '\n';
             return false;

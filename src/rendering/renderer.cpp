@@ -18,7 +18,6 @@ namespace lunaria
     struct ShaderData {
         glm::mat4 projection;
         glm::mat4 view;
-        glm::mat4 model;
     };
 
     Renderer::Renderer(std::function<void(VkInstance,VkSurfaceKHR*)> bruh)
@@ -113,11 +112,16 @@ namespace lunaria
             };
             chk(vmaCreateBuffer(allocator, &uBufferCI, &uBufferAllocCI, &frames[i].shaderData, &frames[i].shaderDataAllocation, nullptr));
 
-                VkBufferDeviceAddressInfo uBufferBdaInfo{
+            VkBufferDeviceAddressInfo uBufferBdaInfo{
                 .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
                 .buffer = frames[i].shaderData
             };
             frames[i].shaderDataAddress = vkGetBufferDeviceAddress(device, &uBufferBdaInfo);
+
+            uBufferCI.size = sizeof(glm::mat4) * 4096;
+            chk(vmaCreateBuffer(allocator, &uBufferCI, &uBufferAllocCI, &frames[i].ObjectData, &frames[i].ObjectDataAllocation, nullptr));
+            uBufferBdaInfo.buffer = frames[i].ObjectData;
+            frames[i].ObjectDataAddress = vkGetBufferDeviceAddress(device, &uBufferBdaInfo);
 
             chk(vkCreateFence(device, &fenceCI, nullptr, &frames[i].fence));
             chk(vkCreateSemaphore(device, &semaphoreCI, nullptr, &frames[i].presentSemaphore));
@@ -367,21 +371,10 @@ namespace lunaria
         return meshes.size() - 1;
     }
 
-    void Renderer::Render(math::Transform3D& camerapos, float camerafov)
+    void Renderer::Render(math::Transform3D& camerapos, float camerafov, std::vector<DrawObject> drawObjects)
     {
         framedata& frame = frames[currentFrame];
         uint32_t imageIndex;
-
-        
-
-        ShaderData shaderdata;
-        shaderdata.projection = glm::perspective(glm::radians(camerafov), (float)window.width / window.height, 0.1f, 1000.0f);
-        shaderdata.projection[1][1] *= -1;
-        shaderdata.view = camerapos.GetViewMatrix();
-        shaderdata.model = {1};
-
-        void* mappedData = frame.shaderDataAllocation->GetMappedData();
-        memcpy(mappedData, &shaderdata, sizeof(ShaderData));
 
         chk(vkWaitForFences(device, 1, &frame.fence, true, UINT64_MAX));
         chk(vkResetFences(device, 1,  &frame.fence));
@@ -469,21 +462,31 @@ namespace lunaria
         vkCmdSetScissor(cb, 0, 1, &scissor);
 
         vkCmdBindPipeline(cb, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-        
-        //make loop
-        if(meshes.size() < 1)
+
+        ShaderData shaderdata;
+        shaderdata.projection = glm::perspective(glm::radians(camerafov), (float)window.width / window.height, 0.1f, 1000.0f);
+        shaderdata.projection[1][1] *= -1;
+        shaderdata.view = camerapos.GetViewMatrix();
+
+        std::vector<glm::mat4> transforms;
+
+        int i = 0;
+        for(DrawObject drawObject : drawObjects)
         {
-            //std::cout << "no meshes" << std::endl;
-        }
-        else
-        {
-            vkCmdBindIndexBuffer(cb, meshes[0].indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-            PushConstants pushConstants {frame.shaderDataAddress, meshes[0].address};
+            transforms.push_back(drawObject.transform.GetTransformMat());
+            uint32_t meshIndex = drawObject.meshID;
+            vkCmdBindIndexBuffer(cb, meshes[meshIndex].indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+            PushConstants pushConstants {frame.shaderDataAddress, meshes[meshIndex].address, frame.ObjectDataAddress};
             vkCmdPushConstants(cb, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstants), &pushConstants);
-            vkCmdDrawIndexed(cb, meshes[0].indexCount, 1, 0, 0, 0);
-            std::cout << "ddsdsd" << std::endl;            
+            vkCmdDrawIndexed(cb, meshes[meshIndex].indexCount, 1, 0, 0, i);
+            i++;
         }
 
+        void* mappedData = frame.shaderDataAllocation->GetMappedData();
+        memcpy(mappedData, &shaderdata, sizeof(ShaderData));
+
+        mappedData = frame.ObjectDataAllocation->GetMappedData();
+        memcpy(mappedData, transforms.data(), sizeof(glm::mat4) * transforms.size());
         
         vkCmdEndRendering(cb);
         VkImageMemoryBarrier2 barrierPresent{

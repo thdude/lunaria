@@ -25,9 +25,21 @@ namespace lunaria
         //window = {};
         Engine::renderer = window.GetRenderer();
 
-        std::cout << "hi" << std::endl;
-        resourceman.GetAsset<ModelAsset>("monkey.glb");
-
+        //loop();
         window.loop();
+    }
+
+    void Engine::loop()
+    {
+        math::Transform3D camera;
+        camera.position = {-8, 0, 1};
+        while(!glfwWindowShouldClose(window.window))
+        {
+            glfwPollEvents();
+            
+            //renderer->Render(camera, 80);
+            
+            camera.position.x += 0.0001f;
+        }
     }
 }

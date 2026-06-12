@@ -15,6 +15,7 @@ namespace lunaria
 
             Engine();
             void run();
+            void loop();
 
             bool isClient = true;
 
