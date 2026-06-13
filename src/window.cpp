@@ -51,7 +51,7 @@ namespace lunaria
         {
             glfwPollEvents();
             
-            renderer->Render(camera, 80);
+            renderer->Render(camera, 80, );
             
             camera.position.x += 0.0001f;
         }

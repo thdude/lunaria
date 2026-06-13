@@ -21,6 +21,8 @@ namespace lunaria
             //ModelAsset* GetModel(std::string path); 
             void GetTexture();
 
+            void FreeAsset(std::string path);
+
             //test
             std::unordered_map<std::string, Asset*> assets;
 
@@ -34,6 +36,7 @@ namespace lunaria
                     T* asset = (T*)assets[path]; //bruh
                     asset->LoadFromFile(std::filesystem::path(path));
                 }
+                asset->references++;
                 return asset;
             }
         private:

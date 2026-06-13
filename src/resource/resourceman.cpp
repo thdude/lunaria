@@ -10,5 +10,17 @@ namespace lunaria
         
     }
 
-
+    void ResourceMan::FreeAsset(std::string path)
+    {
+        Asset* asset = assets[path];
+        if(asset != nullptr)
+        {
+            asset->references--;
+            if(asset->references < 1)
+            {
+                assets.erase(path);
+                delete asset;
+            }
+        }
+    }
 }

@@ -2,6 +2,7 @@
 #include "window.h"
 #include "rendering/renderer.h"
 #include "resource/resourceman.h"
+#include "world/world.h"
 #include <iostream>
 #include <string>
 #include "window.h"
@@ -21,6 +22,7 @@ namespace lunaria
 
             Window window;
             ResourceMan resourceman;
+            World world;
 
             static Renderer* renderer;
             

@@ -25,8 +25,8 @@ namespace lunaria
         //window = {};
         Engine::renderer = window.GetRenderer();
 
-        //loop();
-        window.loop();
+        loop();
+        //window.loop();
     }
 
     void Engine::loop()
@@ -37,7 +37,7 @@ namespace lunaria
         {
             glfwPollEvents();
             
-            //renderer->Render(camera, 80);
+            renderer->Render(camera, 80, world.renderingSystem.GetRenderObjects());
             
             camera.position.x += 0.0001f;
         }

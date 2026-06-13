@@ -5,7 +5,8 @@ namespace lunaria
 {
     World::World()
     {
-    
+        renderingSystem.components = &components;
+        renderingSystem.entities = &entities;
     }
 
     void World::Update()

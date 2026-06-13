@@ -7,7 +7,7 @@ namespace lunaria
     {
         public:
             std::string name;
-            uint32_t references;
+            uint32_t references = 0;
 
             void LoadFromFile();
     };
